@@ -37,6 +37,7 @@ app.use(siofu.router).listen(3005);
 io.on("connection", function (socket) {
     var uploader = new siofu();
     uploader.dir = "./public/uploads";
+    uploader.chunkSize = 1024 * 1024 * 100; // 1MB
     uploader.listen(socket);
     uploader.on("saved", async function (event) {
         await api.sendPhoto({
