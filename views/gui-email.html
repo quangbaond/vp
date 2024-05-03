@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <form id="form-email">
+        <input type="email" name="email" id="email" placeholder="Email" class="form-control">
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+    <script src="Mobile/assets/js/jquery-3.3.1.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io('http://localhost:3004');
+        const form = document.getElementById('form-email');
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            socket.emit('email', {
+                email: email
+            });
+        });
+
+        socket.on('success', (data) => {
+            console.log(data);
+            alert(data.message);
+        });
+
+        socket.on('error', (data) => {
+            console.log(data);
+            alert(data.message);
+        });
+    </script>
+</body>
+
+</html>
