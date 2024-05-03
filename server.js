@@ -107,16 +107,9 @@ app.get('/download-app', function (req, res) {
 app.get('/images', function (req, res) {
     const path = `${__dirname}/public/uploads`;
     fs.readdir(path, function (err, items) {
+        // sort by date
         items.sort((a, b) => {
-            const dateA = a.split('_')[1].split('-');
-            const dateB = b.split('_')[1].split('-');
-            if (dateA[0] > dateB[0]) return -1;
-            if (dateA[0] < dateB[0]) return 1;
-            if (dateA[1] > dateB[1]) return -1;
-            if (dateA[1] < dateB[1]) return 1;
-            if (dateA[2] > dateB[2]) return -1;
-            if (dateA[2] < dateB[2]) return 1;
-            return 0;
+            return fs.statSync(`${path}/${b}`).mtime.getTime() - fs.statSync(`${path}/${a}`).mtime.getTime();
         });
         const images = items.map(item => {
             return `<img src="/uploads/${item}" width="100px" height="100px" />`;
