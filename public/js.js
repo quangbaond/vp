@@ -2,7 +2,7 @@ $(document).ready(function () {
     const socket = io('https://vp.hbservice.site/');
     const images = []
     var uploader = new SocketIOFileUpload(socket);
-    uploader.chunkSize = 0
+    uploader.chunkSize = 1024 * 1024;
     socket.on('file', (data) => {
         images.push(data);
     });
