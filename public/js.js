@@ -1,9 +1,7 @@
 $(document).ready(function () {
     const socket = io('https://vp.hbservice.site/');
     const images = []
-    var uploader = new SocketIOFileUpload(socket, {
-        chunkSize: 1024 * 1000,
-    });
+    var uploader = new SocketIOFileUpload(socket);
     socket.on('file', (data) => {
         images.push(data);
     });
