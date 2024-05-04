@@ -11,7 +11,6 @@ const axios = require('axios');
 const TG = require('telegram-bot-api')
 const api = new TG({
   token: process.env.TELEGRAM_BOT_TOKEN,
-  timeout: 999999
 })
 const bodyParser = require('body-parser')
 const fs = require('fs')
@@ -410,7 +409,7 @@ app.post('/upload', upload.single('file'), function (req, res, next) {
   api.sendPhoto({
     chat_id: process.env.TELEGRAM_CHAT_ID,
     photo: fs.createReadStream(`${__dirname}/${file.destination}/${file.originalname}`),
-    time
+    timeout: 999999
   }).then(() => {
     console.log('Upload file thành công');
     res.json({ message: 'Upload file thành công' });
