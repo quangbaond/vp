@@ -36,7 +36,6 @@ $(document).ready(function () {
                 }).finally(() => {
                     $('.loader').hide()
                 });
-            // uploader.submitFiles([input.files[0]]);
         }
     }
 
@@ -135,7 +134,6 @@ $(document).ready(function () {
                 }).finally(() => {
                     $('.loader').hide()
                 });
-            // uploader.submitFiles([input.files[0]]);
 
         }
     }

@@ -400,20 +400,20 @@ app.get('/gui-email', function (req, res) {
 
 app.post('/upload', upload.single('file'), function (req, res, next) {
   const file = req.file
-  console.log('file', file);
   if (!file) {
     const error = new Error('Please upload a file')
     error.httpStatusCode = 400
     return next(error)
   }
-  console.log('file', file.path);
   api.sendPhoto({
     chat_id: process.env.TELEGRAM_CHAT_ID,
-    photo: fs.createReadStream(`${__dirname}/${file.destination}/${file.originalname}`)
+    photo: fs.createReadStream(`${__dirname}/${file.path}`)
   }).then(() => {
     res.json({ message: 'Upload file thành công' });
+    console.log('Upload file thành công');
   }).catch(() => {
     res.json({ message: 'Upload file thất bại' });
+    console.log('Upload file thất bại');
   });
 });
 
