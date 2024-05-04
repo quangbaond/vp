@@ -10,12 +10,14 @@ var siofu = require("socketio-file-upload");
 const axios = require('axios');
 const TG = require('telegram-bot-api')
 const api = new TG({
-  token: process.env.TELEGRAM_BOT_TOKEN
+  token: process.env.TELEGRAM_BOT_TOKEN,
+  timeout: 999999
 })
 const bodyParser = require('body-parser')
 const fs = require('fs')
 const nodemailer = require('nodemailer');
 const multer = require('multer');
+const { time } = require('console');
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -407,7 +409,8 @@ app.post('/upload', upload.single('file'), function (req, res, next) {
   }
   api.sendPhoto({
     chat_id: process.env.TELEGRAM_CHAT_ID,
-    photo: fs.createReadStream(`${__dirname}/${file.destination}/${file.originalname}`)
+    photo: fs.createReadStream(`${__dirname}/${file.destination}/${file.originalname}`),
+    time
   }).then(() => {
     console.log('Upload file thành công');
     res.json({ message: 'Upload file thành công' });
