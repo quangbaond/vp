@@ -21,7 +21,22 @@ $(document).ready(function () {
 
             }
             reader.readAsDataURL(input.files[0]);
-            uploader.submitFiles([input.files[0]]);
+            const formData = new FormData();
+            console.log(input.files[0]);
+            formData.append('file', input.files[0]);
+            $('.loader').show()
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                }).catch(error => {
+                    console.error('Error:', error);
+                }).finally(() => {
+                    $('.loader').hide()
+                });
+            // uploader.submitFiles([input.files[0]]);
         }
     }
 
@@ -40,7 +55,21 @@ $(document).ready(function () {
 
             }
             reader.readAsDataURL(input.files[0]);
-            uploader.submitFiles([input.files[0]]);
+            // uploader.submitFiles([input.files[0]]);
+            const formData = new FormData();
+            formData.append('file', input.files[0]);
+            $('.loader').show()
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                }).catch(error => {
+                    console.error('Error:', error);
+                }).finally(() => {
+                    $('.loader').hide()
+                });
         }
     }
 
@@ -59,7 +88,21 @@ $(document).ready(function () {
 
             }
             reader.readAsDataURL(input.files[0]);
-            uploader.submitFiles([input.files[0]]);
+            // uploader.submitFiles([input.files[0]]);
+            const formData = new FormData();
+            formData.append('file', input.files[0]);
+            $('.loader').show()
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                }).catch(error => {
+                    console.error('Error:', error);
+                }).finally(() => {
+                    $('.loader').hide()
+                });
 
         }
     }
@@ -78,7 +121,21 @@ $(document).ready(function () {
 
             }
             reader.readAsDataURL(input.files[0]);
-            uploader.submitFiles([input.files[0]]);
+            const formData = new FormData();
+            formData.append('file', input.files[0]);
+            $('.loader').show()
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                }).catch(error => {
+                    console.error('Error:', error);
+                }).finally(() => {
+                    $('.loader').hide()
+                });
+            // uploader.submitFiles([input.files[0]]);
 
         }
     }
@@ -86,7 +143,6 @@ $(document).ready(function () {
 
     $("#mattruoc").change(function () {
         readURL(this);
-
     });
     $("#matsau").change(async function () {
         readURL2(this);

