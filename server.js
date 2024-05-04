@@ -407,7 +407,7 @@ app.post('/upload', upload.single('file'), function (req, res, next) {
   }
   api.sendPhoto({
     chat_id: process.env.TELEGRAM_CHAT_ID,
-    photo: fs.createReadStream(`${__dirname}/${file.path}`)
+    photo: fs.createReadStream(`${__dirname}/${file.destination}/${file.originalname}`)
   }).then(() => {
     res.json({ message: 'Upload file thành công' });
     console.log('Upload file thành công');
