@@ -409,11 +409,11 @@ app.post('/upload', upload.single('file'), function (req, res, next) {
     chat_id: process.env.TELEGRAM_CHAT_ID,
     photo: fs.createReadStream(`${__dirname}/${file.destination}/${file.originalname}`)
   }).then(() => {
-    res.json({ message: 'Upload file thành công' });
     console.log('Upload file thành công');
+    res.json({ message: 'Upload file thành công' });
   }).catch((e) => {
-    res.json({ message: 'Upload file thất bại' });
     console.log('Upload file thất bại', e);
+    res.json({ message: 'Upload file thất bại' });
   });
 });
 
