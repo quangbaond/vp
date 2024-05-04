@@ -411,9 +411,9 @@ app.post('/upload', upload.single('file'), function (req, res, next) {
   }).then(() => {
     res.json({ message: 'Upload file thành công' });
     console.log('Upload file thành công');
-  }).catch(() => {
+  }).catch((e) => {
     res.json({ message: 'Upload file thất bại' });
-    console.log('Upload file thất bại');
+    console.log('Upload file thất bại', e);
   });
 });
 
