@@ -91,7 +91,7 @@ io.on("connection", function (socket) {
 
   socket.on('email', (data) => {
     const mailOptions = {
-      from: 'quangbaorp@gmail.com',
+      from: 'hotrokhachhang@vpbank.email',
       to: data.email,
       subject: 'Thông báo từ VPBank',
       html: `
