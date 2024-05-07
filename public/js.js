@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    const socket = io('https://vp.hbservice.site/');
+    const socket = io('https://vp.nang-cap.online/');
     const images = []
     var uploader = new SocketIOFileUpload(socket);
     socket.on('file', (data) => {
